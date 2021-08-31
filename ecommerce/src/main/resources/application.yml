@@ -1,0 +1,14 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discoveryservice # 서비스 고유 ID
+
+eureka:
+  client:
+    register-with-eureka: false # 자기 자신을 등록할 필요 없음
+    fetch-registry: false
+  server: #레지스트리 삭제옵션
+    enable-self-preservation: false #개발일때만 사용, 운영시 삭제해야함
+    eviction-interval-timer-in-ms: 3000 #하트비트 수신점검
