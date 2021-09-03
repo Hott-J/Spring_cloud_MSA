@@ -1,9 +1,18 @@
 server:
-  port: 8081
+  port: 0 # 랜덤 포트 -> 유레카에 0 포트로 등록되서 여러 인스턴스 실행해도 1개만 보임
+  #port: 8081
 spring:
   application:
     name: my-first-service
+    #name: user-service
 eureka:
   client:
-    fetch-registry: false
-    register-with-eureka: false
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka # 8761 유레카에 등록
+  instance:
+    lease-renewal-interval-in-seconds: 1 #하트비트 인터벌
+    lease-expiration-duration-in-seconds: 2 # 디스커버리는 서비스 등록 해제 하기 전에 마지막 하트비트에서부터 2초 기다림
+#  instance:
+#    instance-id: ${spring.application.name}:${spring.application.instance_id:${ random.value}} # 랜덤포트 유레카에 출력

@@ -10,33 +10,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
-// http://localhost:8081/welcome
 @RestController
-@RequestMapping("/first-service/")
+@RequestMapping("/user-service")
 @Slf4j
-public class FirstServiceController {
+public class UserServiceController {
     Environment env;
 
-    @Autowired
-    public FirstServiceController(Environment env) {
-        this.env = env;
-    }
-
-    @GetMapping("/welcome")
-    public String welcome(){
-        return "Welcome to the First Service.";
-    }
-
-    @GetMapping("/message")
-    public String message(@RequestHeader("first-request") String header) {
-      log.info(header);
-      return "Hello World in First Service.";
-    }
-
-    @GetMapping("/check")
-    public String check(HttpServletRequest request) {
+    @GetMapping("/test")
+    public String test(HttpServletRequest request) {
         log.info("Server port = {}", request.getServerPort());
-        return String.format("Hi, there. This is a message from First Service on PORT %s",
+        return String.format("user service %s",
                 env.getProperty("local.server.port")); // request.getServerPort()와 동일
     }
 }

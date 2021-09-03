@@ -3,10 +3,10 @@ server:
 
 eureka:
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka # 8761 유레카에 등록
 
 spring:
   application:
@@ -15,16 +15,41 @@ spring:
     gateway:
       routes:
         - id: first-service
-          uri: http://localhost:8081/
+          #uri: http://localhost:8081/ #직접 등록 (유레카를 거치지 않고 바로 포워딩)
+          uri: lb://MY-FIRST-SERVICE # 유레카에 등록된 이름. 유레카 서버에게 가서, 클라이언트 정보를 전달한다
+          #uri: lb://USER-SERVICE
+          # lb: 로드밸런서 설정
+          # Spring Cloud Loadbalancer를 이용하여 처리하게 됨. 참고로, Spring Cloud Loadbalancer는
+          # 이전 Netflix Ribbon과 같은 아키텍처를 사용하는 Loadbalancer이며, Non-blocking 방식을 지원.
+          # spring.io 에서는 netflix에서 사용되는 많은 라이브러리들을 Spring Cloud 제품으로 전환하고 있으며,
+          # Gateway와 Loadbalacner도 그중 일부이다. Spring Cloud Loadbalancer는 round-robin과 random 방식을 지원.
+          # 랜덤포트로 설정해서, 유레카 네이밍으로 포워딩하는게 유연하다.
           predicates:
             - Path=/first-service/** #  http://localhost:8081/first-service/** 처럼 넘어감
+            #- Path=/user-service/**
           filters:
-            - AddRequestHeader=first-request, first-request-headerYml
-            - AddResponseHeader=first-response, first-response-headerYml
+#            - AddRequestHeader=first-request, first-request-headerYml
+#            - AddResponseHeader=first-response, first-response-headerYml
+            - CustomFilter
         - id: second-service
-          uri: http://localhost:8082/
+          uri: lb://MY-SECOND-SERVICE
+          #uri: lb://PRODUCT-SERVICE
+          #uri: http://localhost:9090/
           predicates:
             - Path=/second-service/**
+            #- Path=/product-service/**
           filters:
-            - AddRequestHeader=second-request, second-request-headerYml
-            - AddResponseHeader=second-response, second-response-headerYml
+#            - AddRequestHeader=second-request, second-request-headerYml
+#            - AddResponseHeader=second-response, second-response-headerYml
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                baseMessage: Hi, LoggingFilter Only in Second Service.
+                preLogger: true
+                postLogger: true
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: Spring Cloud Gateway Global Filter
+            preLogger: true
+            postLogger: true
